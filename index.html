@@ -141,28 +141,31 @@ async function loadQuizzes() {
 
     const quizzes = data.data; // Array of quiz objects
 
-    // Map course_code to the category cards already in your HTML
-    const categoryCards = document.querySelectorAll('.category-card');
+   // Map course_code to the category cards
+const categoryCards = document.querySelectorAll('.category-card');
 
-    categoryCards.forEach((card) => {
-      const courseCode = card.querySelector('h3').textContent.replace(/\s/g, '');
-      // Find matching quiz
-      const quiz = quizzes.find(
-        (q) => q.course_code === courseCode || q.course_code === courseCode.replace('CSC', 'CSC')
-      );
+categoryCards.forEach((card) => {
+    const courseCode = card.querySelector('h3').textContent.trim().replace(/\s+/g, '');
 
-      if (quiz) {
-        card.style.cursor = 'pointer';
-        card.addEventListener('click', () => {
-          // Store selected quiz in localStorage
-          localStorage.setItem('selectedQuizId', quiz.id);
-          localStorage.setItem('selectedQuizTitle', quiz.title);
-          localStorage.setItem('selectedCourseCode', quiz.course_code);
-          // Navigate to quiz page
-          window.location.href = 'quiz.html';
-        });
-      }
-    });
+    console.log("Card:", courseCode);
+
+    const quiz = quizzes.find(q => q.course_code.trim() === courseCode);
+
+    console.log("Quiz found:", quiz);
+
+    if (!quiz) return;
+
+    card.style.cursor = "pointer";
+
+    card.onclick = function () {
+        localStorage.setItem("selectedQuizId", String(quiz.id));
+        localStorage.setItem("selectedQuizTitle", quiz.title);
+        localStorage.setItem("selectedCourseCode", quiz.course_code);
+
+        window.location.href = "quiz.html";
+    };
+});
+
 
     console.log(`✅ Loaded ${quizzes.length} quizzes`);
   } catch (error) {
