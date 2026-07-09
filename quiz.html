@@ -18,12 +18,12 @@
 
         <div class="quiz-header">
 
-            <h1>CSC 301 Quiz</h1>
+            <h1>IntelliQuiz</h1>
 
             <div class="quiz-info">
 
-                <p>Question 1 of 10</p>
-                <p>Time Left: 09:45</p>
+                <p>Question 1 of 20</p>
+                <p>Time Left: 04:59</p>
 
             </div>
 
@@ -45,7 +45,7 @@
                     Data Backup Management System
                 </button>
 
-                <button class="option-btn correct">
+                <button class="option-btn">
                     Database Management System
                 </button>
 
@@ -64,7 +64,7 @@
         <div class="quiz-footer">
 
             <div class="score-area">
-                Current Score: 8
+                Current Score: 2
             </div>
 
             <div class="quiz-buttons">
@@ -85,5 +85,207 @@
  <footer class="footer">
         <p>© 2026 IntelliQuiz | Designed for Interactive Learning</p>
     </footer>
+    <script>
+        const API_BASE = 'https://intelliquiz-cr44.onrender.com/';
+
+// State
+let questions = [];
+let currentIndex = 0;
+let selectedAnswers = {}; // { questionId: 'A' | 'B' | 'C' | 'D' }
+let score = 0;
+let timerInterval = null;
+let timeLeft = 300; // 5 minutes in seconds
+
+// Get quiz info from localStorage (set on index.html)
+const quizId    = localStorage.getItem('selectedQuizId');
+const quizTitle = localStorage.getItem('selectedQuizTitle');
+
+// ─── Load Questions from API ──────────────────────────────────────────────────
+async function loadQuestions() {
+  if (!quizId) {
+    alert('No quiz selected. Please go back to the home page and choose a quiz.');
+    window.location.href = 'index.html';
+    return;
+  }
+
+  try {
+    const response = await fetch(`${API_BASE}/quizzes/${quizId}/questions`);
+    const data = await response.json();
+
+    if (!data.success || data.data.length === 0) {
+      alert('No questions found for this quiz. Please contact support.');
+      return;
+    }
+
+    questions = data.data;
+
+    // Update quiz title
+    const titleEl = document.querySelector('.quiz-header h1');
+    if (titleEl) titleEl.textContent = quizTitle || 'IntelliQuiz';
+
+    // Render first question
+    renderQuestion();
+    startTimer();
+  } catch (error) {
+    console.error('❌ Error loading questions:', error.message);
+    alert('Could not load questions. Make sure the backend server is running.');
+  }
+}
+
+// ─── Render Current Question ──────────────────────────────────────────────────
+function renderQuestion() {
+  const q = questions[currentIndex];
+
+  // Question text
+  document.querySelector('.question-box h2').textContent = q.question;
+
+  // Options
+  const optionBtns = document.querySelectorAll('.option-btn');
+  const options = [q.option_a, q.option_b, q.option_c, q.option_d];
+  const labels  = ['A', 'B', 'C', 'D'];
+
+  optionBtns.forEach((btn, i) => {
+    btn.textContent = `${labels[i]}. ${options[i]}`;
+    btn.className = 'option-btn';
+
+    // Restore selection if revisiting
+    if (selectedAnswers[q.id] === labels[i]) {
+      btn.classList.add('selected');
+      btn.style.background = '#dbeafe';
+      btn.style.borderColor = 'var(--primary-color)';
+    }
+
+    btn.onclick = () => selectOption(labels[i], btn);
+  });
+
+  // Progress bar
+  const progressEl = document.querySelector('.progress');
+  const pct = ((currentIndex + 1) / questions.length) * 100;
+  if (progressEl) progressEl.style.width = `${pct}%`;
+
+  // Question counter
+  const infoEl = document.querySelector('.quiz-info p:first-child');
+  if (infoEl) infoEl.textContent = `Question ${currentIndex + 1} of ${questions.length}`;
+
+  // Score display
+  const scoreEl = document.querySelector('.score-area');
+  if (scoreEl) scoreEl.textContent = `Current Score: ${score}`;
+}
+
+// ─── Handle Option Selection ──────────────────────────────────────────────────
+function selectOption(label, clickedBtn) {
+  const q = questions[currentIndex];
+
+  // Clear previous selections visually
+  document.querySelectorAll('.option-btn').forEach((btn) => {
+    btn.style.background = '';
+    btn.style.borderColor = '';
+    btn.className = 'option-btn';
+  });
+
+  // Highlight selected
+  clickedBtn.classList.add('selected');
+  clickedBtn.style.background = '#dbeafe';
+  clickedBtn.style.borderColor = 'var(--primary-color)';
+
+  // Store answer
+  selectedAnswers[q.id] = label;
+}
+
+// ─── Navigation ───────────────────────────────────────────────────────────────
+function nextQuestion() {
+  if (currentIndex < questions.length - 1) {
+    currentIndex++;
+    renderQuestion();
+  } else {
+    // Last question — submit
+    submitQuiz();
+  }
+}
+
+function previousQuestion() {
+  if (currentIndex > 0) {
+    currentIndex--;
+    renderQuestion();
+  }
+}
+
+// ─── Timer ────────────────────────────────────────────────────────────────────
+function startTimer() {
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    const mins = String(Math.floor(timeLeft / 60)).padStart(2, '0');
+    const secs = String(timeLeft % 60).padStart(2, '0');
+
+    const timerEl = document.querySelector('.quiz-info p:last-child');
+    if (timerEl) timerEl.textContent = `Time Left: ${mins}:${secs}`;
+
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      alert('Time is up! Submitting your quiz.');
+      submitQuiz();
+    }
+  }, 1000);
+}
+
+// ─── Submit Quiz to API ───────────────────────────────────────────────────────
+async function submitQuiz() {
+  clearInterval(timerInterval);
+
+  // Build answers array
+  const answers = Object.entries(selectedAnswers).map(([questionId, selected]) => ({
+    questionId: parseInt(questionId, 10),
+    selected,
+  }));
+
+  if (answers.length === 0) {
+    alert('You have not answered any questions. Please answer at least one question before submitting.');
+    return;
+  }
+
+  try {
+    const response = await fetch(`${API_BASE}/results/submit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ quizId: parseInt(quizId, 10), answers }),
+    });
+
+    const data = await response.json();
+
+    if (!data.success) {
+      alert(`Submission failed: ${data.error.message}`);
+      return;
+    }
+
+    // Store result for result.html
+    localStorage.setItem('quizResult', JSON.stringify(data.result));
+
+    // Navigate to results page
+    window.location.href = 'result.html';
+  } catch (error) {
+    console.error('❌ Error submitting quiz:', error.message);
+    alert('Could not submit quiz. Make sure the backend server is running.');
+  }
+}
+
+// ─── Attach Navigation Button Handlers ───────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  loadQuestions();
+
+  const buttons = document.querySelectorAll('.quiz-buttons button');
+  if (buttons[0]) buttons[0].addEventListener('click', previousQuestion); // Previous
+  if (buttons[1]) buttons[1].addEventListener('click', nextQuestion);     // Next / Submit
+
+  // Update Next button label on last question
+  const observer = new MutationObserver(() => {
+    if (questions.length > 0 && currentIndex === questions.length - 1) {
+      if (buttons[1]) buttons[1].textContent = 'Submit Quiz';
+    } else {
+      if (buttons[1]) buttons[1].textContent = 'Next Question';
+    }
+  });
+  observer.observe(document.body, { subtree: true, childList: true });
+});
+    </script>
 </body>
 </html>
