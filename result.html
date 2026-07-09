@@ -22,7 +22,7 @@
             <h1>Quiz Completed Successfully</h1>
 
             <div class="score-circle">
-                80%
+                5%
             </div>
 
             <h2 class="performance">
@@ -30,27 +30,27 @@
             </h2>
 
             <p class="summary">
-                You answered 8 out of 10 questions correctly.
+                You answered 9 out of 20 questions correctly.
             </p>
 
             <div class="analysis">
 
                 <div class="analysis-card">
                     <h3>Strong Area</h3>
-                    <p>Database Management Systems</p>
+                    <p>Database</p>
                 </div>
 
                 <div class="analysis-card">
                     <h3>Needs Improvement</h3>
-                    <p>Computer Architecture</p>
+                    <p>Hardware</p>
                 </div>
 
             </div>
 
             <div class="result-buttons">
 
-                <a href="quiz.html" class="btn-primary">
-                    Restart Quiz
+                <a href="index.html" class="btn-primary">
+                    Take Another Quiz
                 </a>
 
                 <a href="index.html" class="btn-secondary">
@@ -65,5 +65,62 @@
  <footer class="footer">
         <p>© 2026 IntelliQuiz | Designed for Interactive Learning</p>
     </footer>
+    <script>function getPerformanceLabel(percentage) {
+  if (percentage >= 90) return 'Excellent Performance! 🎉';
+  if (percentage >= 75) return 'Great Job! 👏';
+  if (percentage >= 50) return 'Good Effort! Keep Practising 💪';
+  return 'Needs Improvement — Try Again! 📚';
+}
+
+function displayResult() {
+  const resultData = localStorage.getItem('quizResult');
+
+  if (!resultData) {
+    // No result found — redirect home
+    window.location.href = 'index.html';
+    return;
+  }
+
+  let result;
+  try{
+    result = JSON.parse(resultData);
+  } catch(e) {
+    localStorage.removeItem("quizResult");
+    window.location.href = "index.html";
+    return;
+  }
+
+  // Update score circle
+  const scoreCircle = document.querySelector('.score-circle');
+  if (scoreCircle) scoreCircle.textContent = `${result.percentage}%`;
+
+  // Update performance label
+  const performanceEl = document.querySelector('.performance');
+  if (performanceEl) performanceEl.textContent = getPerformanceLabel(result.percentage);
+
+  // Update summary text
+  const summaryEl = document.querySelector('.summary');
+  if (summaryEl) {
+    summaryEl.textContent =
+      `You answered ${result.score} out of ${result.total} questions correctly.`;
+  }
+
+  // Update analysis cards
+  const analysisCards = document.querySelectorAll('.analysis-card');
+  if (analysisCards[0]) {
+    analysisCards[0].querySelector('h3').textContent = 'Quiz';
+    analysisCards[0].querySelector('p').textContent = result.quiz_title || 'IntelliQuiz';
+  }
+  if (analysisCards[1]) {
+    analysisCards[1].querySelector('h3').textContent = 'Score';
+    analysisCards[1].querySelector('p').textContent = `${result.score} / ${result.total}`;
+  }
+
+  // Clear result from localStorage after displaying
+  // (comment out if you want to keep it for session)
+  // localStorage.removeItem('quizResult');
+}
+
+document.addEventListener('DOMContentLoaded', displayResult);</script>
 </body>
 </html>

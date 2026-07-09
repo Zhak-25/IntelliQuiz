@@ -127,60 +127,104 @@
         <p>© 2026 IntelliQuiz | Designed for Interactive Learning</p>
     </footer>
 <script>
-    const API_BASE = 'https://intelliquiz-cr44.onrender.com/api';
+const API_BASE = 'https://intelliquiz-cr44.onrender.com/api';
 
 async function loadQuizzes() {
-  try {
-    const response = await fetch(`${API_BASE}/quizzes`);
-    const data = await response.json();
+    try {
+        const response = await fetch(`${API_BASE}/quizzes`);
+        const data = await response.json();
 
-    if (!data.success) {
-      console.error('Failed to load quizzes:', data.error);
-      return;
+        if (!data.success) {
+            console.error("Failed to load quizzes:", data.error);
+            return;
+        }
+
+        const quizzes = data.data;
+
+        const categoryCards = document.querySelectorAll('.category-card');
+
+        categoryCards.forEach((card) => {
+
+            const courseCode = card
+                .querySelector('h3')
+                .textContent
+                .trim()
+                .replace(/\s+/g, '')
+                .toUpperCase();
+
+            const quiz = quizzes.find(q =>
+                q.course_code
+                .trim()
+                .replace(/\s+/g, '')
+                .toUpperCase() === courseCode
+            );
+
+
+            if (quiz) {
+
+                card.style.cursor = "pointer";
+
+                card.onclick = function () {
+
+                    localStorage.setItem(
+                        "selectedQuizId",
+                        String(quiz.id)
+                    );
+
+                    localStorage.setItem(
+                        "selectedQuizTitle",
+                        quiz.title
+                    );
+
+                    localStorage.setItem(
+                        "selectedCourseCode",
+                        quiz.course_code
+                    );
+
+
+                    console.log(
+                        "Selected Quiz:",
+                        quiz.id,
+                        quiz.title
+                    );
+
+
+                    window.location.href = "quiz.html";
+                };
+
+            } else {
+                console.log(
+                    "No quiz found for:",
+                    courseCode
+                );
+            }
+
+        });
+
+        console.log(
+            `Loaded ${quizzes.length} quizzes`
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Error loading quizzes:",
+            error
+        );
+
+        alert(
+            "Unable to connect to IntelliQuiz server"
+        );
     }
-
-    const quizzes = data.data; // Array of quiz objects
-
-   // Map course_code to the category cards
-const categoryCards = document.querySelectorAll('.category-card');
-
-categoryCards.forEach((card) => {
-    const courseCode = card.querySelector('h3').textContent.trim().replace(/\s+/g, '');
-
-    console.log("Card:", courseCode);
-
-    const quiz = quizzes.find(q => q.course_code.trim() === courseCode);
-
-    console.log("Quiz found:", quiz);
-
-    if (!quiz) return;
-
-    card.style.cursor = "pointer";
-
-    card.onclick = function () {
-        localStorage.setItem("selectedQuizId", String(quiz.id));
-        localStorage.setItem("selectedQuizTitle", quiz.title);
-        localStorage.setItem("selectedCourseCode", quiz.course_code);
-alert("ID: " +
-localStorage.getItem("selectedQuizId") +
-"\nTitle: " +
-localStorage.getItem("selectedQuizTitle");
-    );
-        window.location.href = "quiz.html";
-    };
-});
-
-
-    console.log(`✅ Loaded ${quizzes.length} quizzes`);
-  } catch (error) {
-    console.error('❌ Error loading quizzes:', error.message);
-    alert('Could not connect to the Intelliquiz server. .');
-  }
 }
 
-// Run on page load
-document.addEventListener('DOMContentLoaded', loadQuizzes);
+
+document.addEventListener(
+    "DOMContentLoaded",
+    loadQuizzes
+);
 
 </script>
+
 </body>
 </html>
