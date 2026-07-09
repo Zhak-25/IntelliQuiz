@@ -161,7 +161,9 @@ categoryCards.forEach((card) => {
         localStorage.setItem("selectedQuizId", String(quiz.id));
         localStorage.setItem("selectedQuizTitle", quiz.title);
         localStorage.setItem("selectedCourseCode", quiz.course_code);
-
+console.log("Saving quiz ID:", quiz.id);
+console.log("Saving title:", quiz.title);
+console.log("Saving course:", quiz.course_code);
         window.location.href = "quiz.html";
     };
 });

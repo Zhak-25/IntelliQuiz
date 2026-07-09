@@ -97,6 +97,7 @@ let timeLeft = 300; // 5 minutes in seconds
 
 // Get quiz info from localStorage (set on index.html)
 const quizId    = localStorage.getItem('selectedQuizId');
+console.log("Loaded quiz ID:", quizId);
 const quizTitle = localStorage.getItem('selectedQuizTitle');
 
 // ─── Load Questions from API ──────────────────────────────────────────────────
