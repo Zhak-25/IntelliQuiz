@@ -127,7 +127,7 @@
         <p>© 2026 IntelliQuiz | Designed for Interactive Learning</p>
     </footer>
 <script>
-    const API_BASE = 'https://intelliquiz-cr44.onrender.com/';
+    const API_BASE = 'https://intelliquiz-cr44.onrender.com/api';
 
 async function loadQuizzes() {
   try {
@@ -167,7 +167,7 @@ async function loadQuizzes() {
     console.log(`✅ Loaded ${quizzes.length} quizzes`);
   } catch (error) {
     console.error('❌ Error loading quizzes:', error.message);
-    alert('Could not connect to the server. Make sure the backend is running on port 5000.');
+    alert('Could not connect to the Intelliquiz server. .');
   }
 }
 
