@@ -234,13 +234,13 @@ body{
 
 .category-card{
     background: var(--white-color);
-    padding: 40px 30px;
+    padding: 22px 10px;
     border-radius: 18px;
     box-shadow: var(--shadow);
     transition: var(--transition);
     text-align: center;
     cursor: pointer;
-    border-top: 5px solid var(--primary-color);
+    border-top: 4px solid var(--primary-color);
 }
 
 .category-card:hover{
