@@ -131,7 +131,7 @@ const API_BASE = 'https://intelliquiz-backend-uyp8.onrender.com';
 
 async function loadQuizzes() {
     try {
-        const response = await fetch(`${API_BASE}/quizzes`);
+        const response = await fetch(`${API_BASE}/api/quizzes`);
         const data = await response.json();
 
         if (!data.success) {
@@ -151,7 +151,9 @@ async function loadQuizzes() {
                 .trim()
                 .replace(/\s+/g, '')
                 .toUpperCase();
-
+console.log("Course code:", courseCode);
+console.log("Available:", quizzes.map(q =>
+    q,course_code));
             const quiz = quizzes.find(q =>
                 q.course_code
                 .trim()
