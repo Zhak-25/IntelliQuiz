@@ -330,6 +330,10 @@ body{
     transform: translateX(5px);
 }
 
+.option-btn.selected{
+    background: #2563eb;
+    color: white;
+}
 .option-btn.correct{
     background: #dcfce7;
     border-color: var(--success-color);
