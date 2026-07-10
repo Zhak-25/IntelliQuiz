@@ -109,7 +109,7 @@ async function loadQuestions() {
 
     try {
 
-        const response = await fetch(`${API_BASE}/quizzes/${quizId}/questions`);
+        const response = await fetch(`${API_BASE}/api/quizzes/${quizId}/questions`);
         const result = await response.json();
 
         if (!result.success || !result.data || result.data.length === 0) {
@@ -131,7 +131,6 @@ async function loadQuestions() {
         alert("Failed to load questions.");
 
     }
-
 }
 
 // ===== Display Question =====
