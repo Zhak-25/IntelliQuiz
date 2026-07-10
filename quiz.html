@@ -162,7 +162,8 @@ function renderQuestion() {
             btn.classList.add("selected");
         }
 
-        btn.onclick = () => selectAnswer(question.id, letters[index]);
+        btn.onclick = (event) => selectAnswer(question.id, 
+        letters[index], event);
 
     });
 
@@ -176,12 +177,14 @@ function renderQuestion() {
 
 }
 // ===== Select Answer =====
-function selectAnswer(questionId, answer) {
+function selectAnswer(questionId, answer, event) {
 
     selectedAnswers[questionId] = answer;
 
-    renderQuestion();
-
+    document.querySelectorAll(".option-btn").forEach(btn=> {
+            btn.classList.remove("selected");
+        });
+event.target.classList.add("selected");
 }
 
 // ===== Previous =====
